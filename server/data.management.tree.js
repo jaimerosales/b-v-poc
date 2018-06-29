@@ -173,12 +173,21 @@ function getFolderContents(projectId, folderId, tokenSession, res) {
     .then(function (folderContents) {
       var folderItemsForTree = [];
       folderContents.body.data.forEach(function (item) {
-
+        if (item.attributes.extension.type.indexOf("File") == -1 && item.attributes.extension.type.indexOf("Folder") == -1) return;
         var displayName = item.attributes.displayName == null ? item.attributes.name : item.attributes.displayName;
         if (displayName !== '') { // BIM 360 Items with no displayName also don't have storage, so not file to transfer
           folderItemsForTree.push(prepareItemForTree(
             item.links.self.href,
             displayName,
+            item.type,
+            true
+          ));
+        }
+        var sourceFileName = item.attributes.extension.data.sourceFileName;
+        if (displayName === '' && item.type === "items") { // BIM 360 Items with no displayName also don't have storage, so not file to transfer
+          folderItemsForTree.push(prepareItemForTree(
+            item.links.self.href,
+            sourceFileName,
             item.type,
             true
           ));
